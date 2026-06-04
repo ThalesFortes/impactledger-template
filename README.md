@@ -1,30 +1,10 @@
-# GreenTrace — Rastreabilidade de Impacto Social On-Chain
+# GreenTrace rastreabilidade de Impacto Social On-Chain
 
 > Plataforma blockchain para registro, rastreamento e certificação de ações de impacto social com auditabilidade pública e imutável.
 
----
-
-## O Problema
-
-Bilhões de reais são movimentados anualmente em fundos sociais, projetos ESG e iniciativas de impacto no Brasil — mas a prestação de contas ainda depende de planilhas, PDFs e da boa vontade de quem gerencia os recursos.
-
-- Doadores não conseguem verificar se o dinheiro chegou ao destino
-- ONGs perdem credibilidade por falta de transparência comprovável
-- Empresas não conseguem provar impacto real para relatórios ESG e certificações
-
-## A Solução
-
-GreenTrace registra cada centavo gasto em fundos sociais diretamente na blockchain. Cada gasto vira um registro **imutável, público e auditável por qualquer pessoa** — sem precisar confiar em intermediários.
-
-```
-Fundo criado → Gasto registrado → Evidência no IPFS → NFT emitido → Qualquer pessoa audita
-```
-
----
-
 ## Aplicação Publicada
 
-**https://impact-ledger.vercel.app**
+**https://impact-ledger-five.vercel.app/**
 
 ---
 
@@ -38,7 +18,7 @@ Endereço:      0x871A2dE4748784b259BBD8ED203cb932A0E68d2e
 Rede:          Sepolia Testnet (Chain ID: 11155111)
 ```
 
-> ⚠️ Carteira exclusiva para demonstração — Sepolia testnet, sem valor real.
+> ⚠️ Carteira exclusiva para demonstração Sepolia testnet, sem valor real.
 
 **Como importar:**
 1. MetaMask → ícone de conta → "Add account or hardware wallet" → "Import account"
@@ -246,41 +226,6 @@ impactLedger/
 │       └── lib/                # Hooks, funções de contrato, ABIs
 └── hardhat.config.js
 ```
-
----
-
-## Potencial de Mercado
-
-- **R$ 23 bilhões/ano** movimentados em fundos sociais privados no Brasil
-- **ESG obrigatório** para empresas listadas na B3 desde 2023
-- **US$ 1,1 trilhão** em impact investing globalmente (GIIN, 2023)
-
-**Modelo de negócio SaaS B2B:** R$ 300–800/mês por organização  
-
-**Roadmap:**
-- Login sem MetaMask (Privy — Google/email com carteira invisível)
-- Multi-tenant com Factory contract (cada empresa deploya seus próprios contratos)
-- Migração para Polygon (gas < R$ 0,01 por transação, invisível para o usuário)
-- Integração PIX/Open Finance para rastreamento fiat
-
----
-
-## Requisitos do Hackathon Atendidos
-
-| Requisito | Como é atendido |
-|-----------|-----------------|
-| Uso de blockchain | Contratos deployados na Sepolia; todas as ações são transações on-chain verificáveis |
-| Registro de ações de impacto | Cada gasto gera NFT (ERC-721) com metadados imutáveis gravados no contrato |
-| Smart contracts funcionais | Três contratos em produção: GreenTrace, ImpactToken, ImpactGovernance |
-| Histórico auditável | Todo o histórico é público e consultável no Etherscan sem acesso ao sistema |
-| Evidências vinculadas | Hash IPFS gravado on-chain vincula cada comprovante ao seu registro |
-| Certificado/NFT automático | NFT emitido automaticamente após confirmação, SVG 100% on-chain |
-| Métricas de impacto | Beneficiários, ODS, localização e métricas registradas por gasto |
-| Transparência on-chain vs off-chain | Dados estruturados on-chain; arquivos grandes no IPFS com hash vinculado |
-| Frontend funcional | Next.js 15 publicado na Vercel com fluxo completo end-to-end |
-| IPFS | Evidências armazenadas via Pinata com hash verificável |
-
----
 
 ## Licença
 
