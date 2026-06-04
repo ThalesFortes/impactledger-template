@@ -32,9 +32,9 @@ Rede:          Sepolia Testnet (Chain ID: 11155111)
 
 | Contrato | Endereço | Etherscan |
 |----------|----------|-----------|
-| GreenTrace (principal) | `0x26902aC21348d3b2fF246E45BB6Cc6523dCdfEE3` | [Ver no Etherscan](https://sepolia.etherscan.io/address/0x26902aC21348d3b2fF246E45BB6Cc6523dCdfEE3) |
-| ImpactToken (ERC20Votes) | `0xf4AF177BF1298341F7ed8f70F36B277E1B630240` | [Ver no Etherscan](https://sepolia.etherscan.io/address/0xf4AF177BF1298341F7ed8f70F36B277E1B630240) |
-| ImpactGovernance (DAO) | `0x11EE0b68Cb1b226943B401D060ef61d3B1d4a568` | [Ver no Etherscan](https://sepolia.etherscan.io/address/0x11EE0b68Cb1b226943B401D060ef61d3B1d4a568) |
+| GreenTrace (principal) | `0x1CFF6500625d6858826a92d6ce38B684e21E570b` | [Ver no Etherscan](https://sepolia.etherscan.io/address/0x1CFF6500625d6858826a92d6ce38B684e21E570b) |
+| ImpactToken (ERC20Votes) | `0xE5870db9acc7165B5333ABc341CE8EdA5B6A01B5` | [Ver no Etherscan](https://sepolia.etherscan.io/address/0xE5870db9acc7165B5333ABc341CE8EdA5B6A01B5) |
+| ImpactGovernance (DAO) | `0x5A2ADc4885665fF62120be3bf03D746B8FF76f39` | [Ver no Etherscan](https://sepolia.etherscan.io/address/0x5A2ADc4885665fF62120be3bf03D746B8FF76f39) |
 
 **Deployer:** `0x871A2dE4748784b259BBD8ED203cb932A0E68d2e`  
 **Deploy em:** 2026-06-04 — Sepolia Testnet

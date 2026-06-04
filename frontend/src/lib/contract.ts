@@ -190,6 +190,10 @@ export async function isAuditValidated(expenditureId: number | bigint): Promise<
   return getReadContract().isAuditValidated(expenditureId);
 }
 
+export async function isRejected(expenditureId: number | bigint): Promise<boolean> {
+  return getReadContract().isRejected(expenditureId);
+}
+
 export async function getTokenURI(tokenId: bigint): Promise<string> {
   return getReadContract().tokenURI(tokenId);
 }

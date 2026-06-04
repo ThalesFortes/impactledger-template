@@ -82,6 +82,7 @@ contract GreenTrace is Ownable, ERC721, ReentrancyGuard {
     mapping(uint256 => Expenditure)   private _expenditures;
     mapping(uint256 => ImpactReport)  private _impactReports;
     mapping(uint256 => bool)          private _auditValidated;
+    mapping(uint256 => bool)          private _rejectedExpenditures;
     mapping(uint256 => uint256[])     private _poolExpenditures;
     mapping(uint256 => uint256)       private _tokenToExpenditure;
     mapping(bytes32  => bool)         private _usedPoolNames;
@@ -112,6 +113,7 @@ contract GreenTrace is Ownable, ERC721, ReentrancyGuard {
     );
 
     event ReceiptConfirmed(uint256 indexed expenditureId, address indexed beneficiary, uint256 timestamp);
+    event ExpenditureRejected(uint256 indexed expenditureId, address indexed beneficiary, uint256 timestamp);
     event CertificateIssued(uint256 indexed expenditureId, uint256 indexed tokenId, address indexed recipient);
     event ImpactReported(uint256 indexed expenditureId, uint256 beneficiariesCount, string metric, uint256 metricValue, uint256 metricGoal, string location, uint256 timestamp);
 
@@ -280,6 +282,7 @@ contract GreenTrace is Ownable, ERC721, ReentrancyGuard {
         require(exp.id != 0,                               "Gasto nao existe");
         require(exp.beneficiary == msg.sender,             "Apenas o beneficiario pode confirmar");
         require(!exp.confirmedByBeneficiary,               "Ja confirmado");
+        require(!_rejectedExpenditures[expenditureId],     "Gasto rejeitado pelo beneficiario");
         require(
             _auditor == address(0) || _auditValidated[expenditureId],
             "Aguardando validacao do auditor"
@@ -305,6 +308,20 @@ contract GreenTrace is Ownable, ERC721, ReentrancyGuard {
 
         emit ReceiptConfirmed(expenditureId, msg.sender, block.timestamp);
         emit CertificateIssued(expenditureId, tokenId, msg.sender);
+    }
+
+    /// @notice Chamado pelo beneficiário para rejeitar ativamente um gasto fraudulento ou incorreto, registrando a denúncia on-chain.
+    function rejectReceipt(uint256 expenditureId) external {
+        Expenditure storage exp = _expenditures[expenditureId];
+        require(exp.id != 0,                              "Gasto nao existe");
+        require(exp.beneficiary == msg.sender,             "Apenas o beneficiario pode rejeitar");
+        require(!exp.confirmedByBeneficiary,               "Gasto ja confirmado");
+        require(!_rejectedExpenditures[expenditureId],     "Ja rejeitado");
+
+        _rejectedExpenditures[expenditureId] = true;
+        if (_pendingReceipts[exp.poolId] > 0) _pendingReceipts[exp.poolId]--;
+
+        emit ExpenditureRejected(expenditureId, msg.sender, block.timestamp);
     }
 
     /// @notice Registra as métricas de impacto de um gasto: número de beneficiados, indicador quantitativo e alinhamento com ODS.
@@ -431,6 +448,10 @@ contract GreenTrace is Ownable, ERC721, ReentrancyGuard {
 
     function isAuditValidated(uint256 expenditureId) external view returns (bool) {
         return _auditValidated[expenditureId];
+    }
+
+    function isRejected(uint256 expenditureId) external view returns (bool) {
+        return _rejectedExpenditures[expenditureId];
     }
 
     function totalCertificates() external view returns (uint256) { return _tokenCounter; }

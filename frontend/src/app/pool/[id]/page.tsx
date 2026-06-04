@@ -7,6 +7,7 @@ import {
   getWriteContract,
   getAuditor,
   isAuditValidated,
+  isRejected,
   FundPool,
   formatEth,
   formatFiat,
@@ -67,6 +68,42 @@ function ConfirmModal({
   );
 }
 
+// ── RejectModal ───────────────────────────────────────────────────────────────
+function RejectModal({
+  onConfirm,
+  onCancel,
+  loading,
+}: {
+  onConfirm: () => void;
+  onCancel: () => void;
+  loading: boolean;
+}) {
+  return (
+    <div className="backdrop" onClick={onCancel}>
+      <div className="modal" onClick={(e) => e.stopPropagation()}>
+        <h3 className="t-h3" style={{ marginBottom: "12px" }}>
+          Rejeitar gasto
+        </h3>
+        <p className="t-body" style={{ marginBottom: "12px", color: "var(--muted)" }}>
+          Ao rejeitar, você registra <strong style={{ color: "var(--bright)" }}>on-chain e de forma permanente</strong> que este
+          gasto é indevido, falso ou não corresponde ao que você recebeu.
+        </p>
+        <p className="t-small" style={{ marginBottom: "24px", color: "var(--amber)" }}>
+          Esta ação é irreversível e ficará pública para qualquer auditor ou doador verificar no Etherscan.
+        </p>
+        <div className="row gap-10">
+          <button onClick={onCancel} className="btn btn-ghost" style={{ flex: 1 }}>
+            Cancelar
+          </button>
+          <button onClick={onConfirm} disabled={loading} className="btn btn-danger-outline" style={{ flex: 1 }}>
+            {loading ? "Aguardando..." : "Rejeitar gasto"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Page ─────────────────────────────────────────────────────────────────────
 export default function PoolPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -81,9 +118,12 @@ export default function PoolPage({ params }: { params: Promise<{ id: string }> }
   const [closingPool, setClosingPool] = useState(false);
   const [confirmExp, setConfirmExp] = useState<bigint | null>(null);
   const [confirmingId, setConfirmingId] = useState<bigint | null>(null);
+  const [rejectExp, setRejectExp] = useState<bigint | null>(null);
+  const [rejectingId, setRejectingId] = useState<bigint | null>(null);
   const [validatingId, setValidatingId] = useState<bigint | null>(null);
   const [auditorAddress, setAuditorAddress] = useState<string | null>(null);
   const [auditMap, setAuditMap] = useState<Record<string, boolean>>({});
+  const [rejectMap, setRejectMap] = useState<Record<string, boolean>>({});
   const [feedback, setFeedback] = useState<{ msg: string; type: "success" | "error"; txHash?: string } | null>(null);
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 10;
@@ -105,6 +145,13 @@ export default function PoolPage({ params }: { params: Promise<{ id: string }> }
     )
       .then((entries) => setAuditMap(Object.fromEntries(entries)))
       .catch(() => {});
+    Promise.all(
+      expenditures.map((e) =>
+        isRejected(e.id).then((v) => [e.id.toString(), v] as const)
+      )
+    )
+      .then((entries) => setRejectMap(Object.fromEntries(entries)))
+      .catch(() => {});
   }, [expenditures]);
 
   function parseContractError(e: unknown): string {
@@ -117,7 +164,9 @@ export default function PoolPage({ params }: { params: Promise<{ id: string }> }
       .join(" ");
     if (msg.includes("Aguardando validacao")) return "Este gasto ainda não foi validado pelo auditor.";
     if (msg.includes("Ja confirmado")) return "Este recebimento já foi confirmado anteriormente.";
-    if (msg.includes("Apenas o beneficiario")) return "Apenas o beneficiário registrado pode confirmar.";
+    if (msg.includes("Apenas o beneficiario")) return "Apenas o beneficiário registrado pode confirmar ou rejeitar.";
+    if (msg.includes("Ja rejeitado")) return "Este gasto já foi rejeitado anteriormente.";
+    if (msg.includes("rejeitado pelo beneficiario")) return "Este gasto foi rejeitado pelo beneficiário.";
     if (msg.includes("rejected") || msg.includes("denied") || msg.includes("4001") || msg.includes("user rejected"))
       return "Transação cancelada pelo usuário.";
     if (msg.includes("Apenas o auditor")) return "Apenas o auditor designado pode validar.";
@@ -159,6 +208,25 @@ export default function PoolPage({ params }: { params: Promise<{ id: string }> }
       setFeedback({ msg: parseContractError(e), type: "error" });
     } finally {
       setConfirmingId(null);
+      setTimeout(() => setFeedback(null), 8000);
+    }
+  }
+
+  async function handleReject(expenditureId: bigint) {
+    setRejectExp(null);
+    setRejectingId(expenditureId);
+    try {
+      const contract = await getWriteContract();
+      const tx = await contract.rejectReceipt(expenditureId);
+      setFeedback({ msg: "Transação enviada. Aguardando confirmação...", type: "success", txHash: tx.hash });
+      await tx.wait();
+      setRejectMap((prev) => ({ ...prev, [expenditureId.toString()]: true }));
+      setFeedback({ msg: "Rejeição registrada na blockchain. O gasto está marcado como denunciado.", type: "success" });
+      refetch();
+    } catch (e) {
+      setFeedback({ msg: parseContractError(e), type: "error" });
+    } finally {
+      setRejectingId(null);
       setTimeout(() => setFeedback(null), 8000);
     }
   }
@@ -524,9 +592,11 @@ export default function PoolPage({ params }: { params: Promise<{ id: string }> }
                   </thead>
                   <tbody>
                     {pageRows.map((exp) => {
+                      const isExpRejected = !!rejectMap[exp.id.toString()];
                       const canConfirm =
                         address &&
                         !exp.confirmedByBeneficiary &&
+                        !isExpRejected &&
                         exp.beneficiary.toLowerCase() === address.toLowerCase();
                       const auditorSet =
                         auditorAddress &&
@@ -590,16 +660,29 @@ export default function PoolPage({ params }: { params: Promise<{ id: string }> }
                                   </span>
                                   <span className="t-small">{formatDate(exp.confirmedAt)}</span>
                                 </>
+                              ) : isExpRejected ? (
+                                <span className="badge badge-err" title="Beneficiário rejeitou este gasto on-chain">
+                                  Rejeitado
+                                </span>
                               ) : waitingAudit ? (
                                 <span className="badge badge-pend">Aguardando auditor</span>
                               ) : canConfirm ? (
-                                <button
-                                  onClick={() => setConfirmExp(exp.id)}
-                                  disabled={confirmingId === exp.id}
-                                  className="btn btn-primary btn-sm"
-                                >
-                                  {confirmingId === exp.id ? "..." : "Confirmar"}
-                                </button>
+                                <div className="stack gap-4">
+                                  <button
+                                    onClick={() => setConfirmExp(exp.id)}
+                                    disabled={confirmingId === exp.id || rejectingId === exp.id}
+                                    className="btn btn-primary btn-sm"
+                                  >
+                                    {confirmingId === exp.id ? "..." : "Confirmar"}
+                                  </button>
+                                  <button
+                                    onClick={() => setRejectExp(exp.id)}
+                                    disabled={confirmingId === exp.id || rejectingId === exp.id}
+                                    className="btn btn-danger-outline btn-sm"
+                                  >
+                                    {rejectingId === exp.id ? "..." : "Rejeitar"}
+                                  </button>
+                                </div>
                               ) : (
                                 <span className="badge badge-pend pulse-ring">Aguardando</span>
                               )}
@@ -715,6 +798,15 @@ export default function PoolPage({ params }: { params: Promise<{ id: string }> }
           onConfirm={() => handleConfirm(confirmExp)}
           onCancel={() => setConfirmExp(null)}
           loading={confirmingId === confirmExp}
+        />
+      )}
+
+      {/* Reject receipt modal */}
+      {rejectExp !== null && (
+        <RejectModal
+          onConfirm={() => handleReject(rejectExp)}
+          onCancel={() => setRejectExp(null)}
+          loading={rejectingId === rejectExp}
         />
       )}
 
