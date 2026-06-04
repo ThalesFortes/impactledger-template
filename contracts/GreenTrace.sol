@@ -122,25 +122,30 @@ contract GreenTrace is Ownable, ERC721, ReentrancyGuard {
     event PriceFeedSet(address indexed priceFeed);
     event TokenSet(address indexed token);
 
+    /// @notice Inicializa o contrato como owner e define o nome/símbolo do NFT certificado.
     constructor() Ownable(msg.sender) ERC721("GreenTrace Certificate", "GTCERT") {}
 
+    /// @notice Define o contrato ImpactToken usado para mintar tokens de governança ao confirmar recebimento.
     function setToken(address token_) external onlyOwner {
         require(token_ != address(0), "Token invalido");
         _token = ImpactToken(token_);
         emit TokenSet(token_);
     }
 
+    /// @notice Define o oracle Chainlink para validação opcional do valor em USD declarado nos gastos.
     function setPriceFeed(address priceFeed_) external onlyOwner {
         _priceFeed = AggregatorV3Interface(priceFeed_);
         emit PriceFeedSet(priceFeed_);
     }
 
+    /// @notice Define o contrato de governança DAO autorizado a trocar o auditor via votação.
     function setGovernance(address governance_) external onlyOwner {
         require(governance_ != address(0), "Governanca invalida");
         _governance = governance_;
         emit GovernanceSet(governance_);
     }
 
+    /// @notice Define o endereço do auditor externo. Quando configurado, gastos só podem ser confirmados após validação do auditor.
     function setAuditor(address auditor_) external onlyOwner {
         require(auditor_ != address(0), "Auditor invalido");
         _auditor = auditor_;
@@ -148,12 +153,14 @@ contract GreenTrace is Ownable, ERC721, ReentrancyGuard {
     }
 
 
+    /// @notice Remove o auditor, tornando a etapa de auditoria opcional para novos gastos.
     function removeAuditor() external onlyOwner {
         _auditor = address(0);
         emit AuditorSet(address(0));
     }
 
 
+    /// @notice Permite à governança DAO trocar o auditor após aprovação de proposta em votação.
     function setAuditorByGovernance(address auditor_) external {
         require(msg.sender == _governance, "Apenas a governanca");
         require(auditor_ != address(0),    "Auditor invalido");
@@ -163,6 +170,10 @@ contract GreenTrace is Ownable, ERC721, ReentrancyGuard {
 
 
 
+    /// @notice Cria um novo fundo de impacto social com nome único, categoria e valor total alocado.
+    /// @param poolName Nome do fundo (deve ser único).
+    /// @param category Categoria do impacto (ex: Educação, Saúde).
+    /// @param totalAmount Valor total alocado em wei.
     function createPool(
         string calldata poolName,
         string calldata category,
@@ -190,6 +201,7 @@ contract GreenTrace is Ownable, ERC721, ReentrancyGuard {
         return poolId;
     }
 
+    /// @notice Encerra um fundo, impedindo novos gastos. Só é possível se não houver recibos pendentes de confirmação.
     function deactivatePool(uint256 poolId) external onlyOwner {
         require(_pools[poolId].id != 0,           "Fundo nao existe");
         require(_pools[poolId].active,             "Fundo ja inativo");
@@ -199,6 +211,14 @@ contract GreenTrace is Ownable, ERC721, ReentrancyGuard {
     }
 
 
+    /// @notice Registra um gasto vinculado a um fundo, com evidência no IPFS e valor equivalente em moeda fiat.
+    /// @param poolId ID do fundo ao qual o gasto pertence.
+    /// @param description Descrição da ação de impacto realizada.
+    /// @param amount Valor gasto em wei.
+    /// @param beneficiary Endereço da carteira do beneficiário que confirma o recebimento.
+    /// @param ipfsHash CID do comprovante (nota fiscal, foto, documento) armazenado no IPFS.
+    /// @param fiatAmountCents Valor equivalente em centavos da moeda fiat (0 se não informado).
+    /// @param fiatCurrency Código da moeda fiat (ex: BRL, USD).
     function registerExpenditure(
         uint256 poolId,
         string calldata description,
@@ -253,6 +273,8 @@ contract GreenTrace is Ownable, ERC721, ReentrancyGuard {
     }
 
 
+    /// @notice Chamado pelo beneficiário para confirmar o recebimento do recurso. Emite automaticamente um NFT-certificado on-chain.
+    /// @dev Protegido com ReentrancyGuard pois realiza mint de tokens após atualizar o estado.
     function confirmReceipt(uint256 expenditureId) external nonReentrant {
         Expenditure storage exp = _expenditures[expenditureId];
         require(exp.id != 0,                               "Gasto nao existe");
@@ -285,6 +307,13 @@ contract GreenTrace is Ownable, ERC721, ReentrancyGuard {
         emit CertificateIssued(expenditureId, tokenId, msg.sender);
     }
 
+    /// @notice Registra as métricas de impacto de um gasto: número de beneficiados, indicador quantitativo e alinhamento com ODS.
+    /// @param expenditureId ID do gasto ao qual o relatório de impacto pertence.
+    /// @param beneficiariesCount Número total de pessoas beneficiadas pela ação.
+    /// @param metric Nome do indicador medido (ex: "refeições servidas", "famílias atendidas").
+    /// @param metricValue Valor alcançado na métrica.
+    /// @param metricGoal Meta estabelecida para a métrica.
+    /// @param location Localidade onde a ação foi executada.
     function registerImpact(
         uint256 expenditureId,
         uint256 beneficiariesCount,
@@ -314,6 +343,7 @@ contract GreenTrace is Ownable, ERC721, ReentrancyGuard {
         );
     }
 
+    /// @notice Chamado pelo auditor externo para validar um gasto antes que o beneficiário possa confirmá-lo.
     function validateExpenditure(uint256 expenditureId) external {
         require(msg.sender == _auditor,                     "Apenas o auditor");
         require(_expenditures[expenditureId].id != 0,      "Gasto nao existe");
@@ -379,6 +409,7 @@ contract GreenTrace is Ownable, ERC721, ReentrancyGuard {
         return _impactReports[expenditureId];
     }
 
+    /// @notice Retorna estatísticas globais da plataforma: total alocado, gasto, número de fundos, gastos e beneficiários.
     function getStats() external view returns (
         uint256 totalAllocated,
         uint256 totalSpent,
@@ -405,6 +436,7 @@ contract GreenTrace is Ownable, ERC721, ReentrancyGuard {
     function totalCertificates() external view returns (uint256) { return _tokenCounter; }
 
 
+    /// @notice Retorna os metadados do NFT-certificado como JSON Base64 com SVG gerado inteiramente on-chain — sem dependência de servidor externo.
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         require(_tokenToExpenditure[tokenId] != 0, "Token inexistente");
 

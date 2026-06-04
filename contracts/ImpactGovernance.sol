@@ -10,12 +10,18 @@ interface IGreenTrace {
 }
 
 
+/// @title ImpactGovernance
+/// @notice DAO que permite aos holders de ImpactToken propor e votar na troca do auditor externo do GreenTrace.
+/// @dev Votos são ponderados por tokens no bloco anterior à criação da proposta (snapshot), prevenindo double voting.
 contract ImpactGovernance is ReentrancyGuard {
     ImpactToken public immutable token;
     IGreenTrace public immutable ledger;
 
+    /// @notice Período de votação de cada proposta.
     uint256 public constant VOTING_PERIOD  = 10 minutes;
-    uint256 public constant QUORUM_PERCENT = 5; 
+
+    /// @notice Quórum mínimo: 5% do total de tokens em circulação devem votar para a proposta ser válida.
+    uint256 public constant QUORUM_PERCENT = 5;
 
     enum ProposalStatus { Active, Executed, Rejected }
 
@@ -27,8 +33,8 @@ contract ImpactGovernance is ReentrancyGuard {
         uint256        votesFor;
         uint256        votesAgainst;
         uint256        deadline;
-        uint256        totalSupplyAtCreation; 
-        uint256        snapshotBlock;       
+        uint256        totalSupplyAtCreation; // snapshot do supply para cálculo de quórum
+        uint256        snapshotBlock;         // bloco de referência para leitura de votos (getPastVotes)
         ProposalStatus status;
     }
 
@@ -55,6 +61,7 @@ contract ImpactGovernance is ReentrancyGuard {
     event ProposalExecuted(uint256 indexed proposalId, address indexed newAuditor);
     event ProposalRejected(uint256 indexed proposalId);
 
+    /// @notice Inicializa a governança com o token de votos e o contrato GreenTrace que será governado.
     constructor(address tokenAddr, address ledgerAddr) {
         require(tokenAddr  != address(0), "Token invalido");
         require(ledgerAddr != address(0), "Ledger invalido");
@@ -62,7 +69,9 @@ contract ImpactGovernance is ReentrancyGuard {
         ledger = IGreenTrace(ledgerAddr);
     }
 
-   
+    /// @notice Cria uma proposta para trocar o auditor externo do GreenTrace. Requer ao menos 1 token de governança.
+    /// @param targetAuditor Endereço do novo auditor proposto.
+    /// @param description Justificativa da proposta exibida para os votantes.
     function propose(
         address targetAuditor,
         string calldata description
@@ -97,6 +106,9 @@ contract ImpactGovernance is ReentrancyGuard {
     }
 
 
+    /// @notice Registra o voto de um holder. O peso do voto é baseado no saldo do bloco de snapshot da proposta.
+    /// @param proposalId ID da proposta a ser votada.
+    /// @param support true para votar a favor, false para votar contra.
     function vote(uint256 proposalId, bool support) external nonReentrant {
         Proposal storage p = _proposals[proposalId];
 
@@ -122,6 +134,8 @@ contract ImpactGovernance is ReentrancyGuard {
     }
 
 
+    /// @notice Executa a proposta após o prazo de votação. Se aprovada, troca o auditor no GreenTrace via governança.
+    /// @dev A proposta é aprovada se atingiu quórum (5% do supply) e votos a favor superam os contra.
     function execute(uint256 proposalId) external nonReentrant {
         Proposal storage p = _proposals[proposalId];
 
@@ -147,11 +161,13 @@ contract ImpactGovernance is ReentrancyGuard {
     }
 
 
+    /// @notice Retorna os dados completos de uma proposta pelo ID.
     function getProposal(uint256 proposalId) external view returns (Proposal memory) {
         require(_proposals[proposalId].id != 0, "Proposta inexistente");
         return _proposals[proposalId];
     }
 
+    /// @notice Retorna todas as propostas criadas, em ordem de criação.
     function getAllProposals() external view returns (Proposal[] memory) {
         Proposal[] memory result = new Proposal[](_proposalIds.length);
         for (uint256 i = 0; i < _proposalIds.length; i++) {
@@ -160,10 +176,12 @@ contract ImpactGovernance is ReentrancyGuard {
         return result;
     }
 
+    /// @notice Verifica se um endereço já votou em uma proposta específica.
     function hasVotedOn(uint256 proposalId, address voter) external view returns (bool) {
         return _hasVoted[proposalId][voter];
     }
 
+    /// @notice Retorna o número total de propostas criadas.
     function proposalCount() external view returns (uint256) {
         return _proposalCounter;
     }
