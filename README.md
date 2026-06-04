@@ -1,52 +1,173 @@
-# ImpactLedger
+# GreenTrace — Rastreabilidade de Impacto Social On-Chain
 
-Plataforma de rastreabilidade on-chain de gastos de impacto social. Cada gasto é registrado como NFT na blockchain com evidências no IPFS, garantindo transparência, imutabilidade e auditabilidade pública.
-
-**Stack:** Hardhat + Solidity 0.8.24, Next.js 15, ethers.js, Pinata IPFS, Sepolia testnet.
+> Plataforma blockchain para registro, rastreamento e certificação de ações de impacto social com auditabilidade pública e imutável.
 
 ---
 
-## Como a solução funciona
+## O Problema
 
-### Visão geral
+Bilhões de reais são movimentados anualmente em fundos sociais, projetos ESG e iniciativas de impacto no Brasil — mas a prestação de contas ainda depende de planilhas, PDFs e da boa vontade de quem gerencia os recursos.
 
-O ImpactLedger resolve o problema de falta de transparência na destinação de fundos sociais. Qualquer pessoa pode verificar publicamente onde e como cada recurso foi gasto, sem depender de relatórios intermediários.
+- Doadores não conseguem verificar se o dinheiro chegou ao destino
+- ONGs perdem credibilidade por falta de transparência comprovável
+- Empresas não conseguem provar impacto real para relatórios ESG e certificações
 
-### Fluxo principal
+## A Solução
 
-1. **Criação de fundo** — o admin (owner do contrato) cria um fundo com nome, categoria e valor total disponível.
-2. **Registro de gasto** — o admin registra um gasto vinculado a um fundo, com descrição, valor, beneficiário e hash IPFS do comprovante (nota fiscal, foto, documento).
-3. **Confirmação pelo beneficiário** — o beneficiário conecta sua carteira e confirma o recebimento diretamente na blockchain.
-4. **Emissão de certificado NFT** — após a confirmação, um NFT (ERC-721) é mintado automaticamente com os metadados do gasto embutidos on-chain como SVG. Esse token é a prova imutável da ação de impacto.
-5. **Governança** — holders do ImpactToken (ERC-20) podem votar em propostas via DAO (ImpactGovernance).
+GreenTrace registra cada centavo gasto em fundos sociais diretamente na blockchain. Cada gasto vira um registro **imutável, público e auditável por qualquer pessoa** — sem precisar confiar em intermediários.
 
-### Por que blockchain garante a confiabilidade
-
-- **Imutabilidade:** nenhum registro pode ser alterado ou deletado após gravado na rede.
-- **Auditabilidade pública:** qualquer pessoa pode consultar o histórico completo no Etherscan, sem precisar de acesso ao sistema.
-- **Verificação sem intermediário:** o beneficiário confirma o recebimento diretamente com a própria carteira — não é possível falsificar essa confirmação.
-- **Certificado NFT on-chain:** os metadados do NFT (descrição, valor, beneficiário, data) ficam embutidos diretamente no contrato, não dependem de servidor externo.
-
-### Contratos inteligentes
-
-| Contrato | Função |
-|---|---|
-| `GreenTrace` (ERC-721) | Registra fundos, gastos e emite certificados NFT |
-| `ImpactToken` (ERC-20Votes) | Token de governança distribuído aos participantes |
-| `ImpactGovernance` | DAO para votação de propostas usando snapshot anti-double voting |
+```
+Fundo criado → Gasto registrado → Evidência no IPFS → NFT emitido → Qualquer pessoa audita
+```
 
 ---
 
-## Pré-requisitos
+## Aplicação Publicada
 
+**https://impact-ledger.vercel.app**
+
+---
+
+## Acesso Demo — Painel Administrativo
+
+Para testar o painel de gestão completo, importe esta carteira no MetaMask:
+
+```
+Chave privada: 0x8a3bef974e11393ec1c2c9ca4350f11ad3a536a3d0fbf9d533de96877f8eff0d
+Endereço:      0x871A2dE4748784b259BBD8ED203cb932A0E68d2e
+Rede:          Sepolia Testnet (Chain ID: 11155111)
+```
+
+> ⚠️ Carteira exclusiva para demonstração — Sepolia testnet, sem valor real.
+
+**Como importar:**
+1. MetaMask → ícone de conta → "Add account or hardware wallet" → "Import account"
+2. Cole a chave privada acima e confirme
+3. Certifique-se de estar na rede Sepolia
+4. Acesse a aplicação e clique em "Conectar Carteira"
+
+---
+
+## Contratos Deployados — Sepolia Testnet
+
+| Contrato | Endereço | Etherscan |
+|----------|----------|-----------|
+| GreenTrace (principal) | `0x26902aC21348d3b2fF246E45BB6Cc6523dCdfEE3` | [Ver no Etherscan](https://sepolia.etherscan.io/address/0x26902aC21348d3b2fF246E45BB6Cc6523dCdfEE3) |
+| ImpactToken (ERC20Votes) | `0xf4AF177BF1298341F7ed8f70F36B277E1B630240` | [Ver no Etherscan](https://sepolia.etherscan.io/address/0xf4AF177BF1298341F7ed8f70F36B277E1B630240) |
+| ImpactGovernance (DAO) | `0x11EE0b68Cb1b226943B401D060ef61d3B1d4a568` | [Ver no Etherscan](https://sepolia.etherscan.io/address/0x11EE0b68Cb1b226943B401D060ef61d3B1d4a568) |
+
+**Deployer:** `0x871A2dE4748784b259BBD8ED203cb932A0E68d2e`  
+**Deploy em:** 2026-06-04 — Sepolia Testnet
+
+---
+
+## Fluxo Principal
+
+```
+1. Admin cria um Fundo de Impacto (ex: "Fundo Alimentação 2026")
+        ↓
+2. Admin registra um Gasto com:
+   - Descrição, valor em ETH e valor em BRL
+   - Endereço do beneficiário
+   - Evidência (PDF/imagem) enviada ao IPFS via Pinata
+        ↓
+3. GreenTrace emite automaticamente um NFT-certificado on-chain
+   com SVG gerado inteiramente no contrato (sem dependência externa)
+        ↓
+4. Beneficiário confirma o recebimento diretamente on-chain
+        ↓
+5. Auditor valida a despesa (quando configurado)
+        ↓
+6. Qualquer pessoa acessa a URL pública e verifica:
+   → o gasto no Etherscan
+   → a evidência no IPFS
+   → o certificado NFT
+```
+
+---
+
+## O que fica On-Chain vs Off-Chain
+
+| Dado | Onde fica | Por quê |
+|------|-----------|---------|
+| Nome do fundo, categoria, valor total | **On-chain** | Imutável, auditável |
+| Valor gasto, beneficiário, timestamp | **On-chain** | Prova de execução |
+| Hash IPFS da evidência | **On-chain** | Vincula o documento ao registro |
+| Métricas de impacto (beneficiários, ODS) | **On-chain** | Rastreabilidade completa |
+| NFT-certificado (SVG completo) | **On-chain** | Sem dependência de servidor externo |
+| PDF/imagem da nota fiscal | **IPFS** | Custo de gas inviável on-chain |
+
+---
+
+## Arquitetura
+
+```
+┌──────────────────────────────────────────────┐
+│             Frontend (Next.js 15)             │
+│           Vercel  ·  ethers.js v6             │
+└─────────────────────┬────────────────────────┘
+                      │ MetaMask
+         ┌────────────▼─────────────┐
+         │      Sepolia Testnet      │
+         │                           │
+         │  ┌─────────────────────┐ │
+         │  │     GreenTrace      │ │  ERC721 + Ownable + ReentrancyGuard
+         │  │    (principal)      │ │  Fundos · Gastos · NFTs · Auditor
+         │  └──────────┬──────────┘ │
+         │             │             │
+         │  ┌──────────▼──────────┐ │
+         │  │    ImpactToken      │ │  ERC20Votes
+         │  │   (governança)      │ │  Mintado por gasto confirmado
+         │  └──────────┬──────────┘ │
+         │             │             │
+         │  ┌──────────▼──────────┐ │
+         │  │  ImpactGovernance   │ │  DAO · Propostas · Votação
+         │  │       (DAO)         │ │  Snapshot anti-double voting
+         │  └─────────────────────┘ │
+         └───────────────────────────┘
+                      │
+         ┌────────────▼─────────────┐
+         │     IPFS via Pinata       │
+         │  Evidências das ações     │
+         └───────────────────────────┘
+```
+
+---
+
+## Tecnologias
+
+| Camada | Tecnologia |
+|--------|-----------|
+| Smart Contracts | Solidity 0.8.24 |
+| Framework | Hardhat |
+| Padrões | OpenZeppelin (ERC721, ERC20Votes, Ownable, ReentrancyGuard) |
+| Rede | Sepolia Testnet |
+| Carteira | MetaMask |
+| Armazenamento descentralizado | IPFS via Pinata |
+| Frontend | Next.js 15 + React 19 |
+| Interação blockchain | ethers.js v6 |
+| Deploy frontend | Vercel |
+
+---
+
+## Diferenciais Técnicos
+
+- **NFT com SVG 100% on-chain** — certificado gerado inteiramente pelo contrato, sem servidor
+- **ERC20Votes + snapshot por bloco** — governança segura, sem possibilidade de double voting
+- **ReentrancyGuard** no fluxo de confirmação — proteção contra ataques de reentrância
+- **Escape XML/JSON no SVG on-chain** — prevenção de injeção de código
+- **Fluxo de auditoria opcional** — validação por auditor externo antes da confirmação final
+- **Métricas ODS** — alinhamento com os 17 Objetivos de Desenvolvimento Sustentável da ONU
+- **Valor em BRL + ETH** — cada gasto registra o equivalente em reais para prestação de contas local
+
+---
+
+## Como Executar Localmente
+
+### Pré-requisitos
 - Node.js 18+
-- MetaMask (ou outra carteira EVM)
-- ETH na Sepolia — obtenha em [sepoliafaucet.com](https://sepoliafaucet.com) ou [faucet.quicknode.com/ethereum/sepolia](https://faucet.quicknode.com/ethereum/sepolia)
-- Conta na [Pinata](https://app.pinata.cloud) (plano gratuito, 1 GB) para upload de comprovantes
-
----
-
-## Setup
+- MetaMask instalado no browser
+- ETH na Sepolia — obtenha em [sepoliafaucet.com](https://sepoliafaucet.com)
 
 ### 1. Instalar dependências
 
@@ -55,105 +176,112 @@ npm install
 cd frontend && npm install && cd ..
 ```
 
-### 2. Configurar variáveis de ambiente do Hardhat
-
-Copie o arquivo de exemplo e preencha:
+### 2. Configurar variáveis de ambiente
 
 ```bash
 cp .env.example .env
 ```
 
 Edite `.env`:
-
 ```
-PRIVATE_KEY=sua_chave_privada_da_carteira_deployer
+PRIVATE_KEY=sua_chave_privada
 SEPOLIA_RPC_URL=https://rpc.sepolia.org
-ETHERSCAN_API_KEY=opcional_para_verificar_contrato
+ETHERSCAN_API_KEY=opcional
 ```
 
-> A `PRIVATE_KEY` é a chave da carteira que vai ser **owner/admin** do contrato.
-> Use uma carteira de teste — nunca a sua carteira principal.
+```bash
+cp frontend/.env.local.example frontend/.env.local
+```
 
-### 3. Fazer o deploy
+Edite `frontend/.env.local` com os endereços dos contratos e o JWT da Pinata.
+
+### 3. Rodar o frontend
+
+```bash
+npm run frontend:dev
+# Acesse http://localhost:3000
+```
+
+### 4. (Opcional) Deploy próprio dos contratos
 
 ```bash
 npm run deploy:sepolia
 ```
 
-Este comando faz automaticamente:
-- Deploya os 3 contratos (GreenTrace, ImpactToken, ImpactGovernance)
-- Configura os contratos entre si
-- Copia os ABIs para o frontend
-- Atualiza `frontend/.env.local` com os endereços dos contratos
-
-### 4. Configurar o frontend
-
-Abra `frontend/.env.local` (criado automaticamente pelo deploy) e adicione o JWT da Pinata:
-
-```
-PINATA_JWT=seu_jwt_da_pinata
-```
-
-Para obter o JWT: [app.pinata.cloud/developers/api-keys](https://app.pinata.cloud/developers/api-keys) → gerar nova chave com permissão de upload.
-
-### 5. Rodar o frontend
-
-```bash
-npm run frontend:dev
-```
-
-Acesse `http://localhost:3000`.
+Deploya os 3 contratos, configura entre si, copia ABIs e atualiza o `.env.local` automaticamente.
 
 ---
 
-## Áreas do app
-
-| Rota | Quem acessa |
-|---|---|
-| `/` | Qualquer visitante — visualiza fundos e gastos |
-| `/admin` | Somente o **owner do contrato** — cria fundos, registra gastos, faz uploads de evidências |
-
-A carteira que fez o deploy é automaticamente o owner. Qualquer outra carteira acessa apenas a área pública.
-
-### Transferir o acesso admin para outra carteira
-
-Sem mexer no código, via Etherscan:
-
-1. Acesse o contrato GreenTrace no [Sepolia Etherscan](https://sepolia.etherscan.io)
-2. Aba **Contract** → **Write Contract** → **Connect to Web3**
-3. Chame `transferOwnership` com o endereço da nova carteira
-4. Confirme no MetaMask
-
----
-
-## Scripts disponíveis
+## Scripts Disponíveis
 
 ```bash
 npm run deploy:sepolia      # Deploy completo na Sepolia
-npm run configure           # Reconfigurar contratos já deployados (sem redeploy)
-npm run sync-env            # Sincronizar endereços do deploy com frontend/.env.local
-npm run frontend:dev        # Rodar frontend em desenvolvimento
-npm run frontend:build      # Build de produção do frontend
-npm test                    # Rodar testes Hardhat
+npm run configure           # Reconfigurar contratos já deployados
+npm run sync-env            # Sincronizar endereços com o frontend
+npm run frontend:dev        # Frontend em desenvolvimento
+npm run frontend:build      # Build de produção
+npm test                    # Testes Hardhat
 ```
 
 ---
 
-## Contratos
+## Estrutura do Repositório
 
-Os endereços são gerados no deploy e salvos em `deployments/sepolia.json` (não versionado).
-Após o deploy, os endereços são sincronizados automaticamente no `frontend/.env.local`.
+```
+impactLedger/
+├── contracts/
+│   ├── GreenTrace.sol          # Contrato principal — fundos, gastos, NFTs
+│   ├── ImpactToken.sol         # ERC20Votes — token de governança
+│   └── ImpactGovernance.sol    # DAO — propostas e votação
+├── scripts/
+│   ├── deploy.js               # Deploy dos 3 contratos em sequência
+│   ├── configure.js            # Configuração pós-deploy
+│   └── sync-env.js             # Sincroniza endereços no frontend
+├── deployments/
+│   └── sepolia.json            # Endereços deployados (gerado automaticamente)
+├── frontend/
+│   └── src/
+│       ├── app/                # Páginas Next.js (/, /admin, /fundos/*)
+│       ├── components/         # Componentes React
+│       └── lib/                # Hooks, funções de contrato, ABIs
+└── hardhat.config.js
+```
 
 ---
 
-## Requisitos atendidos
+## Potencial de Mercado
+
+- **R$ 23 bilhões/ano** movimentados em fundos sociais privados no Brasil
+- **ESG obrigatório** para empresas listadas na B3 desde 2023
+- **US$ 1,1 trilhão** em impact investing globalmente (GIIN, 2023)
+
+**Modelo de negócio SaaS B2B:** R$ 300–800/mês por organização  
+
+**Roadmap:**
+- Login sem MetaMask (Privy — Google/email com carteira invisível)
+- Multi-tenant com Factory contract (cada empresa deploya seus próprios contratos)
+- Migração para Polygon (gas < R$ 0,01 por transação, invisível para o usuário)
+- Integração PIX/Open Finance para rastreamento fiat
+
+---
+
+## Requisitos do Hackathon Atendidos
 
 | Requisito | Como é atendido |
-|---|---|
-| **Uso de blockchain** | Contratos deployados na Sepolia (rede pública Ethereum); todas as ações são transações on-chain verificáveis |
-| **Registro verificável de ações de impacto** | Cada gasto gera um NFT (ERC-721) com metadados imutáveis gravados diretamente no contrato; o comprovante fica no IPFS |
-| **Histórico auditável** | Todo o histórico de fundos, gastos e confirmações é público e consultável no Etherscan sem necessidade de acesso ao sistema |
-| **Smart contract funcional** | Três contratos em produção na Sepolia: `GreenTrace`, `ImpactToken` e `ImpactGovernance`, com testes automatizados em Hardhat |
-| **Repositório GitHub funcional** | Código versionado com `.env.example`, scripts de deploy automatizados e instruções de setup neste README |
-| **Código minimamente comentado** | Contratos e funções principais contêm comentários explicando estruturas de dados, regras de negócio e decisões não óbvias |
-| **README explicando o funcionamento** | Este documento descreve o fluxo completo da solução, a arquitetura dos contratos e os passos para rodar o projeto |
+|-----------|-----------------|
+| Uso de blockchain | Contratos deployados na Sepolia; todas as ações são transações on-chain verificáveis |
+| Registro de ações de impacto | Cada gasto gera NFT (ERC-721) com metadados imutáveis gravados no contrato |
+| Smart contracts funcionais | Três contratos em produção: GreenTrace, ImpactToken, ImpactGovernance |
+| Histórico auditável | Todo o histórico é público e consultável no Etherscan sem acesso ao sistema |
+| Evidências vinculadas | Hash IPFS gravado on-chain vincula cada comprovante ao seu registro |
+| Certificado/NFT automático | NFT emitido automaticamente após confirmação, SVG 100% on-chain |
+| Métricas de impacto | Beneficiários, ODS, localização e métricas registradas por gasto |
+| Transparência on-chain vs off-chain | Dados estruturados on-chain; arquivos grandes no IPFS com hash vinculado |
+| Frontend funcional | Next.js 15 publicado na Vercel com fluxo completo end-to-end |
+| IPFS | Evidências armazenadas via Pinata com hash verificável |
+
+---
+
+## Licença
+
+MIT
