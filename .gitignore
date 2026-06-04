@@ -16,7 +16,7 @@ typechain-types
 coverage
 coverage.json
 
-# Deployments (endereços de contrato — não versionar)
+# Deployments 
 deployments/*.json
 
 # Next.js
@@ -40,9 +40,3 @@ yarn-error.log*
 Thumbs.db
 desktop.ini
 
-# Ferramentas de desenvolvimento AI
-.claude
-CLAUDE.md
-AGENTS.md
-frontend/CLAUDE.md
-frontend/AGENTS.md
