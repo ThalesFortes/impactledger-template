@@ -231,4 +231,6 @@ impactLedger/
 
 ## Licença
 
-MIT
+Copyright (c) 2026 Thales Fortes — Todos os direitos reservados.  
+É proibido copiar, modificar ou distribuir este software sem autorização prévia e por escrito do autor.  
+Veja o arquivo [LICENSE](./LICENSE) para mais detalhes.
