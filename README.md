@@ -2,6 +2,8 @@
 
 > Plataforma blockchain para registro, rastreamento e certificação de ações de impacto social com auditabilidade pública e imutável.
 
+![Demonstração](./assets/demo.gif)
+
 ## Aplicação Publicada
 
 **https://impact-ledger-five.vercel.app/**
