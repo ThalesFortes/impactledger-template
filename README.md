@@ -2,6 +2,8 @@
 
 > Plataforma blockchain para registro, rastreamento e certificação de ações de impacto social com auditabilidade pública e imutável.
 
+[![Assista à apresentação no YouTube](https://img.shields.io/badge/YouTube-Apresentação-red?logo=youtube)](https://youtu.be/YCxPJ53XaF4)
+
 ![Demonstração](./assets/demo.gif)
 
 ## Aplicação Publicada
