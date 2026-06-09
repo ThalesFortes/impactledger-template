@@ -166,16 +166,43 @@ cp .env.example .env
 
 Edite `.env`:
 ```
-PRIVATE_KEY=sua_chave_privada
-SEPOLIA_RPC_URL=https://rpc.sepolia.org
-ETHERSCAN_API_KEY=opcional
+PRIVATE_KEY=sua_chave_privada_da_carteira_deployer
+SEPOLIA_RPC_URL=sua_url_rpc_sepolia
+ETHERSCAN_API_KEY=sua_chave_etherscan
 ```
+
+**Como obter cada valor:**
+
+- **`PRIVATE_KEY`** — chave privada da carteira que vai fazer o deploy (apenas para redeploy; a aplicação já está deployada).
+
+- **`SEPOLIA_RPC_URL`** — endpoint RPC da Sepolia. Opções gratuitas:
+  - [Alchemy](https://alchemy.com): crie conta → "Create App" → rede Sepolia → copie a HTTPS URL  
+  - [Infura](https://infura.io): crie conta → "Create New API Key" → selecione Sepolia → copie a endpoint URL  
+  - Alternativa pública (sem cadastro, menos estável): `https://rpc.sepolia.org`
+
+- **`ETHERSCAN_API_KEY`** — necessário apenas para verificar o código-fonte dos contratos no Etherscan. Opcional para rodar o frontend.  
+  - [Etherscan](https://etherscan.io): crie conta → "My Profile" → "API Keys" → "Add" → copie a chave
 
 ```bash
 cp frontend/.env.local.example frontend/.env.local
 ```
 
-Edite `frontend/.env.local` com os endereços dos contratos e o JWT da Pinata.
+Edite `frontend/.env.local`:
+```
+NEXT_PUBLIC_CONTRACT_ADDRESS=0x1CFF6500625d6858826a92d6ce38B684e21E570b
+NEXT_PUBLIC_TOKEN_ADDRESS=0xE5870db9acc7165B5333ABc341CE8EdA5B6A01B5
+NEXT_PUBLIC_GOVERNANCE_ADDRESS=0x5A2ADc4885665fF62120be3bf03D746B8FF76f39
+NEXT_PUBLIC_SEPOLIA_RPC=sua_url_rpc_sepolia
+PINATA_JWT=seu_jwt_pinata
+```
+
+**Como obter cada valor:**
+
+- **`NEXT_PUBLIC_CONTRACT_ADDRESS` / `NEXT_PUBLIC_TOKEN_ADDRESS` / `NEXT_PUBLIC_GOVERNANCE_ADDRESS`** — endereços dos contratos já deployados, listados na tabela acima. Se fizer redeploy próprio, o script `npm run deploy:sepolia` atualiza esses valores automaticamente.
+
+- **`NEXT_PUBLIC_SEPOLIA_RPC`** — mesma URL RPC usada no `.env` do Hardhat (Alchemy, Infura ou `https://rpc.sepolia.org`).
+
+- **`PINATA_JWT`** — token de autenticação para upload de evidências no IPFS. Obtenha em [app.pinata.cloud/developers/api-keys](https://app.pinata.cloud/developers/api-keys) → "New Key" → ative `pinFileToIPFS` → copie o JWT. Plano gratuito oferece 1 GB.
 
 ### 3. Rodar o frontend
 
@@ -228,6 +255,33 @@ impactLedger/
 │       └── lib/                # Hooks, funções de contrato, ABIs
 └── hardhat.config.js
 ```
+
+## Uso de IA no Desenvolvimento
+
+Este projeto foi desenvolvido por mim de forma independente. A IA (Claude) foi utilizada pontualmente como ferramenta de produtividade em partes específicas .
+
+### O que eu desenvolvi diretamente
+
+| Área | Detalhe |
+|------|---------|
+| **Arquitetura dos contratos** | Decisão de separar em 3 contratos (GreenTrace / ImpactToken / ImpactGovernance), definição das structs, fluxo de estados e integração entre eles |
+| **Lógica Solidity — GreenTrace** | Modelo de FundPool + Expenditure, fluxo de confirmação pelo beneficiário, sistema de auditor opcional, geração do NFT-certificado com SVG 100% on-chain, escape de XML para prevenção de injeção |
+| **Lógica Solidity — ImpactToken** | Auto-delegate no primeiro mint para eliminar a necessidade de chamada manual de `delegate()`, taxa de conversão MINT_RATE |
+| **Lógica Solidity — ImpactGovernance** | Mecanismo de snapshot por bloco (`getPastVotes`) para evitar double voting, cálculo de quórum percentual sobre supply no momento da proposta, ciclo de vida da proposta (Active → Executed/Rejected) |
+| **Segurança on-chain** | Aplicação de `ReentrancyGuard` no fluxo crítico de confirmação, controle de acesso com `Ownable`, validações de estado para impedir gastos em fundos inativos |
+| **Decisões de produto** | Registro de valor em BRL + ETH, alinhamento com ODS, modelo de auditoria externa, hash IPFS vinculado on-chain |
+| **Deploy e configuração** | Sequência de deploy dos 3 contratos com interdependências, transferência de ownership do ImpactToken para o GreenTrace pós-deploy |
+
+### Onde usei IA como apoio
+
+| Área | Como foi usado |
+|------|----------------|
+| **Frontend (Next.js)** | Geração de scaffolding inicial de componentes React e páginas, toda integração com os contratos via `ethers.js` foi revisada e ajustada por mim |
+| **Scripts de deploy** | Rascunho de `deploy.js` e `sync-env.js`, lógica de sequência e configuração foi definida por mim |
+| **Documentação** | Apoio na redação e formatação deste README |
+| **Debugging** | Consultas sobre comportamento de edge cases do OpenZeppelin (ex.: fluxo do `_update` no ERC20Votes) |
+
+---
 
 ## Licença
 
