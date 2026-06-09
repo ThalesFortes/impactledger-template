@@ -1286,6 +1286,9 @@ export default function AdminPage() {
             <p className="t-small" style={{ marginBottom: "12px" }}>
               Sua carteira não é o owner deste contrato.
             </p>
+            <p className="t-small" style={{ marginBottom: "12px", fontFamily: "monospace", wordBreak: "break-all" }}>
+              Conectado: {address}
+            </p>
             {hasTokens && (
               <p className="t-small" style={{ color: "var(--accent)" }}>
                 Você tem {formatTokenAmount(tokenBalance)} IMPACT veja a seção Governança abaixo.

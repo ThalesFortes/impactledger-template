@@ -199,6 +199,13 @@ export async function getTokenURI(tokenId: bigint): Promise<string> {
 }
 
 export async function getContractOwner(): Promise<string> {
+  // Tenta via MetaMask primeiro (mais confiável quando conectado), cai no RPC externo
+  if (typeof window !== "undefined" && window.ethereum) {
+    try {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      return await new ethers.Contract(CONTRACT_ADDRESS, ABI, provider).owner();
+    } catch { /* cai no fallback abaixo */ }
+  }
   return getReadContract().owner();
 }
 
