@@ -2,6 +2,24 @@
 
 > Plataforma blockchain para registro, rastreamento e certificação de ações de impacto social com auditabilidade pública e imutável.
 
+---
+
+## Nota sobre o Repositório de Entrega
+
+Esta entrega foi realizada por meio de um fork do repositório original da atividade, conforme solicitado. No entanto, por desconhecimento do fluxo correto de forks no GitHub, o desenvolvimento foi conduzido inicialmente em um repositório próprio, criado independentemente.
+
+Ao perceber o equívoco, o fork foi criado corretamente e o projeto está sendo entregue neste repositório, conforme orientado.
+
+O repositório original, onde todo o desenvolvimento foi efetivamente realizado — incluindo o histórico completo de commits, com datas e progressão do trabalho — está disponível publicamente em:
+
+**https://github.com/ThalesFortes/impactLedger**
+
+Convido os professores e avaliadores a consultarem esse histórico para verificar a autenticidade e a cronologia do desenvolvimento. O erro cometido foi de ordem procedimental, decorrente de inexperiência com o fluxo de contribuição via fork, e não representa qualquer tentativa de descumprir as instruções da disciplina.
+
+Agradeço a compreensão e coloco-me à disposição para esclarecimentos adicionais caso necessário.
+
+---
+
 ## Explicação do projeto
 ### Clique em youtube ou apresentação para ver a explicação do projeto no youtube
 [![Assista à apresentação no YouTube](https://img.shields.io/badge/YouTube-Apresentação-red?logo=youtube)](https://youtu.be/YCxPJ53XaF4)
