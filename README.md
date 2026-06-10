@@ -10,7 +10,7 @@ Esta entrega foi realizada por meio de um fork do repositório original da ativi
 
 Ao perceber o equívoco, o fork foi criado corretamente e o projeto está sendo entregue neste repositório, conforme orientado.
 
-O repositório original, onde todo o desenvolvimento foi efetivamente realizado — incluindo o histórico completo de commits, com datas e progressão do trabalho — está disponível publicamente em:
+O repositório original, onde todo o desenvolvimento foi efetivamente realizado, incluindo o histórico completo de commits, com datas e progressão do trabalho, está disponível publicamente em:
 
 **https://github.com/ThalesFortes/impactLedger**
 
