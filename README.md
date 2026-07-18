@@ -1,6 +1,6 @@
 # GreenTrace rastreabilidade de Impacto Social On-Chain
 
-> Plataforma blockchain para registro, rastreamento e certificação de ações de impacto social com auditabilidade pública e imutável.
+> Plataforma blockchain para registro, rastreamento e certificação de ações de impacto social com auditabilidade pública e imutável!
 
 ## Explicação do projeto
 ### Clique em youtube ou apresentação para ver a explicação do projeto no youtube
