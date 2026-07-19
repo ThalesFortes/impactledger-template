@@ -16,21 +16,7 @@
 
 ## Acesso Demo — Painel Administrativo
 
-Para testar o painel de gestão completo, importe esta carteira no MetaMask:
-
-```
-Chave privada: 0x8a3bef974e11393ec1c2c9ca4350f11ad3a536a3d0fbf9d533de96877f8eff0d
-Endereço:      0x871A2dE4748784b259BBD8ED203cb932A0E68d2e
-Rede:          Sepolia Testnet (Chain ID: 11155111)
-```
-
-> ⚠️ Carteira exclusiva para demonstração Sepolia testnet, sem valor real.
-
-**Como importar:**
-1. MetaMask → ícone de conta → "Add account or hardware wallet" → "Import account"
-2. Cole a chave privada acima e confirme
-3. Certifique-se de estar na rede Sepolia
-4. Acesse a aplicação e clique em "Conectar Carteira"
+Credenciais de demonstração disponíveis mediante solicitação.
 
 ---
 
@@ -42,7 +28,7 @@ Rede:          Sepolia Testnet (Chain ID: 11155111)
 | ImpactToken (ERC20Votes) | `0xE5870db9acc7165B5333ABc341CE8EdA5B6A01B5` | [Ver no Etherscan](https://sepolia.etherscan.io/address/0xE5870db9acc7165B5333ABc341CE8EdA5B6A01B5) |
 | ImpactGovernance (DAO) | `0x5A2ADc4885665fF62120be3bf03D746B8FF76f39` | [Ver no Etherscan](https://sepolia.etherscan.io/address/0x5A2ADc4885665fF62120be3bf03D746B8FF76f39) |
 
-**Deployer:** `0x871A2dE4748784b259BBD8ED203cb932A0E68d2e`  
+**Deployer:** `0xFa6C4191b7355802b9d134192ED70eD41a4677DA`  
 **Deploy em:** 2026-06-04 — Sepolia Testnet
 
 ---
